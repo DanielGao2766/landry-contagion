@@ -17,9 +17,9 @@ This repo follows the lab's [project-template](https://github.com/kaiser-dan/pro
 5. `results` — results (figures, tables, etc.)
 6. `paper` — manuscripts
 7. `workflow` — workflow files and scripts
-8. `.gitignore` — temporary and binary files to be ignored by git (Julia coverage/memory files, Manifest.toml if not committing it, editor cruft, etc.)
+8. `.gitignore` — temporary and binary files to be ignored by git
 
-`libs` and `models` from the original template aren't included yet, TBD with mentor whether they're needed (vendored packages and trained models respectively, may not apply to this kind of simulation work).
+`libs` and `models` from the original template aren't included yet, TBD with mentor whether they're needed.
 
 ## Julia environment
 
@@ -38,13 +38,6 @@ Pkg.instantiate()
 
 This installs the exact dependency versions listed in `Manifest.toml`.
 
-### Key files (Julia equivalents of the template's Python files)
-
-- `Project.toml` — project metadata and dependency declarations (equivalent to `pyproject.toml`)
-- `Manifest.toml` — reproducible dependency snapshot (equivalent to `uv.lock`)
-
-There's no Julia equivalent yet for `.python-version`, `.envrc`, or `setup.sh`, Julia doesn't need a separate venv/activation step the way Python does; `--project=.` handles that.
-
 ### Common commands
 
 ```julia
@@ -57,30 +50,33 @@ Pkg.instantiate()        # Install from Manifest.toml
 julia --project=. src/contagion.jl   # Run a script
 ```
 
-## Linting and formatting
+## Usage
 
-Not yet set up. The Julia equivalent of `ruff` is [JuliaFormatter.jl](https://github.com/domluna/JuliaFormatter.jl), worth adding once conventions are settled.
+Run the simulation from the project root:
 
-## Pre-commit hooks
+```bash
+julia --project=. src/contagion.jl
+```
 
-Not yet set up. Note that `pre-commit` itself is a Python tool, it would still work here (it can run non-Python commands like Julia scripts), but requires Python installed alongside Julia to use it.
+This runs a toy example: a 5-node path graph, with node 1 seeded as infected, simulated for 10 steps under a fixed 50% transmission probability.
 
-## For AI coding agents
+## Resources
 
-Use the following instructions to initialize.
+- [Getting Started in Julia](https://docs.julialang.org/en/v1/manual/getting-started/) — official manual, install/REPL/syntax basics
+- [Graphs.jl documentation](https://juliagraphs.org/Graphs.jl/dev/) — the graph package used throughout `src/`
 
-Commands:
+### Graph generators relevant to sampling a "reasonable" network structure
 
-- `julia --project=. -e "using Pkg; Pkg.instantiate()"` — install dependencies
-- `julia --project=. -e "using Pkg; Pkg.test()"` — run tests (requires a `test/runtests.jl` file, note the template's `tests/` vs Julia's conventional `test/` naming, TBD which we use)
+Once we move past `path_graph` toy examples, these are the built-in generators worth trying, straight from Graphs.jl:
 
-Conventions:
-
-- Write clean code accompanied by well-designed tests.
-- Put reusable code in `src/`, not in notebooks or workflow scripts.
-- Timestamp experiment folders: `YYYYMMDD_description`.
-- [Type hints / `from project_name import ...` conventions from the original template don't directly apply to Julia yet, current `src/contagion.jl` is a script, not a proper installable Julia module. To match the template's intent, it would need to be restructured as a module with a `Project.toml` `name` field, discuss with mentor.]
+- `erdos_renyi(n, p)` — classic random graph, each edge present with probability `p`
+- `watts_strogatz(n, k, β)` — small-world model, starts as a ring lattice and rewires edges with probability `β`
+- `barabasi_albert(n, k)` — preferential attachment, produces scale-free (power-law) degree distributions
+- `stochastic_block_model(...)` — community-structured random graph, useful if network needs distinct clusters/blocks
+- `expected_degree_graph(ω)` / `random_configuration_model(n, k)` — build a graph matching a specified (or expected) degree sequence, closest built-in match to the "Coin-Flipping, Ball-Dropping, Grass-Hopping" paper in the reading list
 
 ## Contributors
 
-[Add names here]
+Rudra Dave
+Clairice Lou
+Daniel Gao
